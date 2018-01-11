@@ -8,6 +8,7 @@
 # for python that we could use instead.  We cannot use readline directly
 # due to its C and Unix dependency.
 import warnings
+import time
 
 # local
 from x84.bbs.ansiwin import AnsiWindow, GLYPHSETS
@@ -179,7 +180,7 @@ class LineEditor(object):
             return keystroke if not self.hidden else self.hidden
         return u''
 
-    def read(self):
+    def read(self, timeout=None):
         """
         Reads input until the ENTER or ESCAPE key is pressed (Blocking).
 
@@ -189,8 +190,13 @@ class LineEditor(object):
         self._quit = False
         echo(self.refresh())
         term = getterminal()
+        if timeout:
+            ref_time = time.time()
         while not (self.quit or self.carriage_returned):
             inp = term.inkey()
+            if timeout and (time.time() - ref_time > timeout):
+                echo(self.refresh)
+                return -1
             echo(self.process_keystroke(inp))
         echo(self._term.normal)
         if not self.quit:
