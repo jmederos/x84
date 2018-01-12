@@ -190,14 +190,22 @@ class LineEditor(object):
         self._quit = False
         echo(self.refresh())
         term = getterminal()
-        if timeout:
+
+        ref_time = None
+        inkey_timeout = None
+
+        if timeout and timeout > 1:
+            inkey_timeout = timeout - 1
             ref_time = time.time()
+
         while not (self.quit or self.carriage_returned):
-            inp = term.inkey()
-            if timeout and (time.time() - ref_time > timeout):
+            if inkey_timeout and (time.time() - ref_time > timeout):
                 echo(self.refresh())
                 return -1
-            echo(self.process_keystroke(inp))
+            inp = term.inkey(inkey_timeout)
+            if inp:
+                echo(self.process_keystroke(inp))
+
         echo(self._term.normal)
         if not self.quit:
             return self.content
