@@ -195,7 +195,7 @@ class LineEditor(object):
         while not (self.quit or self.carriage_returned):
             inp = term.inkey()
             if timeout and (time.time() - ref_time > timeout):
-                echo(self.refresh)
+                echo(self.refresh())
                 return -1
             echo(self.process_keystroke(inp))
         echo(self._term.normal)
